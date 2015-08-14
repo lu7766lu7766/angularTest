@@ -1,0 +1,130 @@
+@{
+    ViewBag.Title = "Index";
+	Layout = "";
+}
+
+<!DOCTYPE html>
+<html ng-app="App">
+    
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js">
+        </script>
+        <script src="https://code.jquery.com/jquery-2.1.4.js">
+        </script>
+        <meta charset="utf-8">
+		<script src="/Scripts/upload.min.js"></script>
+		<script> var app = angular.module("App", []); </script>
+		<script src="/Scripts/upload.js"></script>
+		@Scripts.Render("~/bundles/test")
+		@Styles.Render("~/bundles/testcss")
+        <title>
+            AngularJsTesting
+        </title>
+    </head>
+    
+    <body>
+        <div ng-controller="firstTool as ctrl">
+            say hello to
+            <span ng-hide="edit" ng-dblclick="editing()">
+                {{name||'everyone'}}
+            </span>
+            <input ng-show="edit" type="text" ng-model="name" id="name" ng-blur="edit=false"
+            />
+            <div class="modify_panel" ng-show="edit">
+                姓名：
+                <input type="text" id="edit_name" ng-model="edit_name" />
+                <br>
+                年齡：
+                <input type="text" ng-model="edit_age" />
+                <br>
+                體重：
+                <input type="text" ng-model="edit_weight" />
+                <br>
+                性別：
+                <label>男<input type="radio" ng-model="edit_sex" value="1"/></label>
+                <label>女<input type="radio" ng-model="edit_sex" value="2"/></label>
+                <br>
+                <label><input type="checkbox" ng-model="check_all" ng-checked="check_all" ng-click="toggleAll(check_all)"/>全選</label>
+                <label ng-repeat="(key,value) in ctrl.interest_list">
+				  <input
+					type="checkbox"
+					ng-checked="check_all||ctrl.interest_list[key].checked"
+					ng-model="ctrl.interest_list[key].checked"
+				  /> {{value.name}}
+			   </label>
+              <br>
+                <input type="button" ng-show="edit" value="Update" ng-click="update(edit_id)">
+            </div>
+          <!--------------------------------------->
+          <br>
+          性別：
+          <select ng-model="search.sex" ng-options="m.id as m.name for m in ctrl.type">
+            <option value="">所有</option>
+          </select>
+            <table>
+                <tr>
+                    <td>
+                        ID
+                    </td>
+                    <td>
+                        <input class="search" type="text" ng-model="search.name">
+                        姓名
+                    </td>
+                    <td>
+                        <input class="search" type="text" ng-model="search.age">
+                        年齡
+                    </td>
+                    <td>
+                        <input class="search" type="text" ng-model="search.weight">
+                        體重
+                    </td>
+                    <td>
+                        修改
+                    </td>
+                </tr>
+                <tr ng-repeat="(key,value) in ctrl.school | filter:search">
+                    <td>
+                        {{ key }}
+                        <br />
+                        <td>
+                            {{ value.name }}
+                        </td>
+                        <td>
+                            {{ value.age }} 歲
+                        </td>
+                        <td>
+                            {{ value.weight }} kg
+                        </td>
+                        <td>
+                            <input type="button" value="Modify" ng-click="action(value.id)">
+                        </td>
+                </tr>
+            </table>
+			<span ng-bind="json">讀取中...</span>
+			{{json}}
+			<br />
+			<input type="file" ng-file-select="onFileSelect($files)" ><br />
+			<img ng-src="{{imageSrc}}" /><br/>
+			<!--- upload pic -->
+			<form name="myForm">
+				<fieldset>
+					<legend>Upload on form submit</legend>
+					Username: <input type="text" name="userName" ng-model="username" size="39" required>
+					<i ng-show="myForm.userName.$error.required">*required</i><br>
+					Profile Picture: <input type="file" ngf-select ng-model="picFile" name="file" accept="image/*" required>
+					<i ng-show="myForm.file.$error.required">*required</i>
+					<br/>
+					<button ng-disabled="!myForm.$valid" ng-click="uploadPic(picFile)">Submit</button>
+					<img ng-show="picFile != null" ngf-src="picFile" class="thumb">
+					<span class="progress" ng-show="picFile.progress >= 0">
+						<div style="width:{{picFile.progress}}%" ng-bind="picFile.progress + '%'"></div>
+					</span>
+					<span ng-show="picFile.result">Upload Successful</span>
+				</fieldset>
+				<br />
+			</form>
+			<!-- upload pic end-->
+        </div>
+    </body>
+
+</html>
