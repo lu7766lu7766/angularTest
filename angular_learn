@@ -1,0 +1,470 @@
+AngularJS學習
+Skip to end of metadata
+Created by Jac.T.Wang (tw nesc b2b.twtc01.Newegg) 61839, last modified on Oct 29, 2015 Go to start of metadata
+前言：簡易說明一下AngularJS的程式架構，運作流程，與幾種較常用到的撰寫方式(標籤)
+配上神兵利器，開發起來才事半功倍，介紹你一款線上開發工具 : https://jsbin.com/kocacepeyu/edit?html,js,output
+AngularJS 框架介紹
+一個由 Google 傾力打造的前端 JavaScript 框架，與其他 JS 框架最大的不同在於，他直接延伸現有的 HTML 架構，透過 宣告式語法 (Directives Syntax) 直接賦予 HTML 額外的超能力，讓 Web 應用程式在元件化的過程變得極其簡潔有力。控制器 (Controllers) 與 檢視 (Views) 之間切割的非常乾淨，再搭配 模組 (module) 與 相依性注入 (Dependency Injection) 相關實作，如 工廠 (factory) 與 服務 (service)、提供者 (provider) 與 常數值 (value) 等等，在在落實了「關注點分離」這個觀念。
+AngularJS與jQuery 等 framework 眾不同的地方是，在上面運作的是一個 MVC 的框架。
+Model 用來存放資料與邏輯，邏輯不包含UI互動與顯示畫面
+View 就是HTML DOM
+Controller 用來處理 View 跟 Model 間的互動關係 
+jQuery著重的是對DOM上的操作，撰寫上相當直覺，套件很多，也深受大家喜愛，但是如果用相同觀念去撰寫AngularJS可是會碰得滿頭包，AngularJS著重的是系統的架構以及對model的控制，也可以說在AngularJS框架中頁面的呈現跟model有著密不可分的關係，佔有非常重要的地位
+很多在學習AngularJS的人都會有跟小編有相同的問題，到底AngularJS 跟 jQuery 是否能共生，這部分小編沒有做過完整的測試，但可以肯定的是，共生的前提條件是jQuery的代碼跟AngularJS要完全切開，且就算完全切開，jQuery的部分功能也會失效，例如clone.....
+AngularJS適用的時機，適用於單一頁面的應用程式，也就是說，想要多頁呈現或者要搭配許多動畫特效的可能就不適用，可改用jQuery或其他框架
+首先打開 AngularJS 的 HTML 會看到類似下圖中，很多 ng- 開頭的屬性，這就是AngularJS特有的宣告式語法。相信說到這裡大家依然似懂非懂，沒關係直接進入實作
+Clipboard03
+第一步 - 設定與使用
+首先要使用AngularJS之前，除了引用他的 js之外，必須要在你的HTML中設定ng-app屬性
+例如：<html ng-app>  (當然不一定要寫在html 標籤裡面)
+AngularsJS 看到 ng-app 後就會自動初始化該標籤範圍內的程式
+正常來說一個頁面只能有一個 ng-app，而且可以在啟用時順便指定要使用哪個模組
+而模組中可能還會有多個 controller
+例如 : <html ng-app="ModuleA">
+上面指的就是要使用模組ModuleA，關於模組的建立之後會提到
+ 
+第二步 - 開始玩幾個簡單的例子
+設定完 ng-app 之後，來試試看一個簡單的例子
+透過這例子可以稍微了解 AngularJS 運作的方式
+首先會用到幾個屬性叫 ng-model、ng-init
+ng-model：View 對應 module 的名稱
+ng-init：指定初始值
+要注意的是一個元素中只能有一個 ng-model
+如以下的例子，ng-init 指定了price 初始值為 300，amt 為 1
+HTML：
+<body ng-app>
+金額：<input type="text" ng-model="price" ng-init="price=300" /><br />
+數量：<input type="number" ng-model="amt" ng-init="amt=1" /><br />
+總金額：{{ price * amt }}
+</body>
+這樣總金額原則上應該會出現300，並且它會隨著金額或數量的變化改變，是不是很神奇呢！
+這邊要特別注意，不可以使用傳統的value=300，因為在AngularJS中，所有的value都會被model取代，所以要修改值可以用 ng-init 或在 controller 中設定初始值
+上面範例中的 {{ price * amt }} 代表了AngularJS 的表達式
+表達式中的內容由於AngularJS會自動綁定的關係，所以 model 的改變會直接反應到頁面上的 view
+而AngularJS的表達式也含有 filter 的特性
+例如以下範例 :
+<body ng-app>
+    {{ 1 + 1 }} <br> => 2
+    {{ 3000 | number }} <br> => 3,000      
+    {{ 3000 | number:2 }} <br>   =>3,000.00   
+    {{ 'hello word' | uppercase }} => 'HELLO WORD'
+</body>
+ 
+第三步 - 建立 Module 與 Controller
+有時候可能有些複雜的功能，無法像上面幾個例子一樣透過自動繫結綁定來完成
+這個時候就需要另外建立 controller 來做為 model 與view 間的溝通橋梁
+然後我們將運作的邏輯寫在 controller 中
+為了之後能方便管理與利用，也可以建立一個 Module 來放置 Controller
+Controller的建立方式有兩種下面會逐一進行說明
+一、直接建立函式
+HTML：
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.1/angular.min.js"></script>
+<body ng-app>
+<div ng-controller="MsgController">
+ {{ Message  }} =>  "測試一下"
+</div>
+</body>
+JS：
+function MsgController($scope) {
+$scope.Message = "測試一下";
+}
+ 
+二、將 controller 建立在自訂的模組中
+第二種是將寫法模組化，所以也比較推薦使用這種方式宣告，相關的 js 可以被整理在一個模組中，日後會變得比較好維護。
+AngularJS1.2板之後也調整了model宣告方式，可較輕易辨識出方法與屬性的是哪個 controller，會優於使用 $scope 注入的方式
+HTML : 
+<body ng-app="ModuleA">
+<div ng-controller="MsgController as ctrl">
+{{ ctrl.Message }}
+</div>
+</body>
+JS : 
+var phonecatApp = angular.module("ModuleA", []).
+phonecatApp.controller("MsgController", [function() {
+this.Message = "測試一下";
+}]);
+在此補充一下scope作用域的概念
+scope 是用來偵測 model 物件的改變，scope 也有物件繼承的特性
+有些 directives 使用後也會產生自己的 scope
+看個範例
+<div ng-controller="controllerA"></div>
+<div ng-controller="controllerA"></div>
+一個 controller 就會產生一個 scope，所以雖然都是 controllerA，但是這是兩個不同的 scope
+未命名
+如果HTML長這樣子情況頁不同了
+<div ng-controller="controllerA">
+<div ng-controller="controllerB"></div>
+</div>
+未命名
+這樣基本上ScopeB就無法干預ScopeA的model，不過也是有特殊寫法可以做到修改的
+<div ng-controller="ParentController">
+{{parentPrimitive}} => "parentMsg"
+<br />
+{{parentObj.parentProperty}} => "childMsg"
+<div ng-controller="ChildController">
+</div>
+</div>
+function ParentController($scope){
+$scope.parentPrimitive = "parentMsg";
+$scope.parentObj = {};
+$scope.parentObj.parentProperty = "default value";
+});
+function ChildController($scope){
+$scope.parentObj.parentProperty = "childMsg";
+});
+ 
+第四步 - 進階一點的練習
+ HTML：
+<div class="container-fluid">
+<div class="row">
+<div class="col-md-2"><!--Sidebar content–>
+Search: <input ng-model="query">
+<select ng-model="orderProp">
+<option value="name">OrderByName</option>
+<option value="age">OrderByAge</option>
+</select>
+</div>
+<div class="col-md-10">
+<ul class="phones">
+<li ng-repeat="phone in phones | filter:query | orderBy:orderProp">
+{{phone.name}}
+<p>{{phone.snippet}}</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+JS：
+var phonecatApp = angular.module('phonecatApp',[]);
+phonecatApp.controller('PhoneListCtrl',function($scope) {
+$scope.phones = [
+{'name':'Nexus S','snippet':'Fast just got faster with Nexus S.','age':1},
+{'name':'Motorola XOOM™ with Wi-Fi','snippet':'The Next, Next Generation tablet.','age':8},
+{'name':'MOTOROLA XOOM™','snippet':'The Next, Next Generation tablet.','age':6}
+];
+$scope.orderProp ='age';
+});
+Result : 
+Search: <<我是搜尋對話框>>
+Nexus S
+Fast just got faster with Nexus S.
+Motorola XOOM™ with Wi-Fi
+The Next, Next Generation tablet.
+MOTOROLA XOOM™
+The Next, Next Generation tablet.
+因為這邊無法動態呈現，請容我文字敘述結果，這裡有四個重點。
+首先 ng-repeat 這個標籤內的第一段 " phone in phones " ，可以把它當成foreach 來看就很好懂了，效果是可以把陣列物件批次呈現。
+其次 " | filter:query " 這段宣告可以進行資料的過濾，例如我輸入"wi-fi"，就會被過濾只剩下{'name':'Motorola XOOM™ with Wi-Fi','snippet':'The Next, Next Generation tablet.','age':8}這項
+ps. 也可以這定過濾只針對某一些屬性，把input的model改一下即可 ex:<input ng-model="query.snippet"> 這樣就只會對snippet欄位過濾，或者自定義過濾條件
+第三 select 的model 的設定，如要設定初始selected 直接對model賦予值即可，相當方便
+第四 " | orderBy:orderProp " 這應該很好懂，可以設定資料排序
+小結：AngularJS 強大的雙向資料繫結，用來做資料整合，不僅功能強大，程式碼也相當簡潔，撰寫快速，如果上述範例用jQuery來寫，程式行數應該多上10倍吧(汗)，但小缺點就是無法對DOM進行操作，以及資料一多，效能差的特性就換顯現出來(因為資料連結的關係，底層會一直去讀取Model跟相對應的View，如果10個View都用到同一個Model可想像效能消耗之大了。聽說2.0之後的版本有修正這項缺點)
+ 
+第五步 - 再介紹些常用的標籤
+ng-click：點擊觸發
+1. 直接指定表達式的值
+<div ng-click="Item1='hi 你好!'">{{ Item1 || "按一下"}}</div>
+2. 指定 ng-model 的值
+<input type="text" ng-model="say" />
+<button ng-click="say='hello 你好!'">按一下</button>
+3. 也可以將算式寫在標籤中
+{{count || 0}}
+<button ng-click="count = count + 1">+1</button>
+4. 實際寫出類似傳統onclick方法，寫法就是將把方法寫在controller內
+<div>
+<button ng-click="Say()">觸發 controller 中的方法</button>
+</div>
+JS：
+var moduleA = angular.module("ModuleA",[]);
+moduleA.controller("MsgController",function($scope) {
+$scope.Say = function(){
+alert('hello');
+};
+});
+ng-dblclick：雙擊觸發，寫法跟ng-click是一樣的
+ng-show：物件顯示屬性
+<div ng-show>test</div>
+能與想像中不同的是，如果只是這樣寫，物件會被隱藏！因為重點還是model的值，因為ng-show沒有賦予它model所以預設為false，所以就會被隱藏。
+<div ng-show="editing" ng-init="editing=true">test</div>
+如果這麼寫物件show的屬性就會為true，就會被顯示！
+ng-hide：
+和ng-show性質相同，但顯示結果相反。小編習慣用ng-show直覺些。
+ng-bind：
+在AngularJS載入且初始化之前，在畫面上就會有:{{name}}類似的字樣出現，雖然只是短暫的瞬間，但隨著專案越開發越大，資料越來越多，看到這瞬間的機會也越來越大，因此特別建議使用者可以將宣告隱藏在ng-bind中
+<span ng-bind="{{name}}">讀取中....</bind>
+其中還可以設定初始值
+ng-class：效果在於變更DOM上的class
+HTML:
+<div ng-app="">
+<input type="button" value="按下去" ng-click="myclass='move'" /> 
+<div id="box" ng-class="myclass"></div>
+</div>
+CSS:
+#box {
+width:100px;
+height:100px;
+border:1px solid blue;
+}
+.move {
+transition: margin-left 2s ,margin-top 2s;
+margin-left:200px; 
+margin-top:100px;
+}
+
+ng-style：與ng-class雷同，但差別在於ng-style是直接更改物件的style
+<div ng-app="">
+<input type="button" value="按一下" ng-click="mystyle={
+'font-size' : '36px',
+'color' : 'blue',
+'text-decoration' : 'underline'
+}" />
+<div ng-style="mystyle">測試一下</div>
+</div>
+雖然 ng-style 寫法很直覺也很方便，但個人覺得還是使用 ng-class 統一把樣式放在 css 檔案維護比較好
+ng-options：針對select物件進行option設定
+JS:
+function controller($scope)
+{
+$scope.Model = [
+{
+id: 10001,
+MainCategory: '男',
+ProductName: '水洗T恤',
+ProductColor: '白'
+},
+{
+id: 10002,
+MainCategory: '女',
+ProductName: '圓領短袖',
+ProductColor: '黃'
+},
+{
+id: 10002,
+MainCategory: '女',
+ProductName: '圓領短袖',
+ProductColor: '黃'
+}];
+}
+範例1
+HTML:
+基本下拉選單： label for value in array
+<select ng-model="Select1" ng-options="m.ProductName for m in Model">
+<option value="">-- 請選擇 --</option>
+</select>
+
+範例2
+HTML:
+<select ng-model="Select1" ng-options="(m.ProductColor + ' - ' + m.ProductName) for m in Model">
+<option value="">-- 請選擇 --</option>
+</select>
+
+範例3
+HTML:
+<select ng-model="Select1" ng-options="(m.ProductColor + ' - ' + m.ProductName) group by m.MainCategory for m in Model">
+<option value="">-- 請選擇 --</option>
+</select>
+
+範例4
+HTML:
+<select ng-model="Select1" ng-options="m.id as m.ProductName for m in Model">
+<option value="">-- 請選擇 --</option>
+</select>
+
+畫面中可能看不出變化，實際上如果選到的圓領短袖，Select1的值就會變成10002，如果沒有m.id as.....設定value就會以流水號來排
+ng-model-option :
+如果想要等onblur之後再更新資料，放心那一點也不難，只需要一個ng-model-options標籤
+<input type="text" ng-model="emp.name" ng-model-options="{updateOn:'blur'}" class="form-control" />
+第六步 - 資料 格式化 與 過濾 的神器filter
+number: 
+{{2000000.12345 | number}} =>2,000,000.12345
+{{2000000.12345 | number:2}} =>2,000,000.12
+currency:
+{{2000000.12345 | currency}} =>2,000,000.12345 => $2000000.12345
+{{2000000.12345 | currency:'台幣$'}} => 台幣$2000000.12345
+lowercase:
+{{'KINANSON' | lowercase}} => kinanson
+uppercase:
+{{'jacky is a man' | uppercase}} => JACK IS A MAN
+date:
+{{Date.now() | date:'yyyy-MM-dd'}} => 2015-08-19 
+json:
+{{obj | json}} => 把物件轉成json格式 
+filter:
+過濾的部分之前也有提過，在ng-repeat = "item in items | filter: search"，也可以針對單一欄位進行過濾，
+例如：<input type="text" ng-model="search.item_name">這樣就只會對item.name的部分進行過濾了
+limitTo: 就是顯示幾筆 或 幾個字的意思
+ng-repeat = "item in items | limitTo:3"
+ng-repeat = "item in items | limitTo:-3" 從後方數回來三筆
+orderBy: 排序
+ng-repeat = "item in items | orderBy:'name' "
+ng-repeat = "item in items | orderBy:'-name' " 反向排序
+自定義filter:
+JS:
+angular.module("app", []).controller("test", test).filter("fullname", function() {
+var filterfun = function(person, sep) {
+sep = sep || " ";
+person = person || {};
+person.first = person.first || "";
+person.last = person.last || "";
+return person.first + sep + person.last;
+};
+return filterfun;
+$scope.person.first="Aa01";
+$scope.person.last="10bB";
+});
+HTML:
+name: {{person | fullname}} =>Aa0110bB
+<br/>
+name: {{person | fullname:"- -"}} => Aa01- -10bB
+<br/>
+name: {{person | fullname:" " | uppercase }} => AA01 10BB
+
+如果要把filter寫在controller只要這麼做
+angular.module('App', []).controller('FirstCtrl', function ($scope,$filter) {
+$scope.people = [
+{ name: 'anson', sex: 'boy' },
+{ name: 'andy', sex: 'boy' },
+{ name: 'coco', sex: 'girl' },
+{ name: 'lucky', sex: 'dog' },
+{ name: 'micky', sex: 'mouse' }
+];
+$scope.people = $filter('limitTo')($scope.people,3);
+});
+
+第七步 - 做些效能提升吧
+bondonce : 
+藉由上面的介紹，相信大家都一定知道， AngularJS 的一大特色就是 2-way binding，這個特色讓我們在開發時可以透過 $scope.$watch 讓 template 和 javascript 內的值同步。
+But！人生最厲害的就是這個But！資料量一大，$watch的物件越來越多，就恭喜你要去女神卡卡的見面會了。所以有了小編等一下要介紹的這個套件
+https://github.com/pasvaz/bindonce
+小編英文不好，所以只能簡單介紹一下，這個套件可以透過自定義的標籤 bindonce 跟 bo-xxxx去綁定物件，然後bindonce顧名思義就是指綁定一次，也就是之後即使修改了model的值，表上的值也不會更動，但對於只顯示一次的表格類卻相當好用，也相當省效能。
+ps. 即使用了bindonceㄧ樣可以用filter進行物件過濾喔，不過如果DOM被過濾掉，又再次出現，一樣是會進行重購的，資料也會重新讀取，但還是不會$watch，使用時請把握這項原則，不要用在資料易變動的物件上。
+寫出來的程式碼長下面這樣
+
+one-time bind（AngularJS > v.1.3）: 
+大家想想看，如果在修改時，顯示的資料也同步異動這是一件非常詭異的事情，然後不想倚靠套件做單次綁定的話趕快把AngularJS升到1.3版以上吧！然後在變數前面加上兩個冒號就搞定了
+JS :
+angular.module('App', []).controller('FirstCtrl', function ($scope) {
+$scope.people = [
+{ name: 'anson', sex: 'boy' },
+{ name: 'andy', sex: 'boy' },
+{ name: 'coco', sex: 'girl' },
+{ name: 'lucky', sex: 'dog' },
+{ name: 'micky', sex: 'mouse' }
+]
+$scope.editClick = function (item) {
+$scope.emp = item;
+}
+});
+HTML : 
+<div ng-controller="FirstCtrl">
+<input type="text" ng-model="emp.name" class="form-control" />
+<input type="text" ng-model="emp.sex" class="form-control" />
+<hr />
+<ul ng-repeat="item in people">
+<li><input type="button" value="修改" ng-click="editClick(item)" class="btn btn-primary" /> {{::item.name}}-{{::item.sex}}</li>
+</ul>
+</div>
+track by（AngularJS > v.1.2）: 
+AngularJS 常用到的一個標籤 ng-repeat，會去讀取陣列中的資料進行物件的建構，但是每次變更陣列內容，物件就會重新建構實在是一件非常沒意義又浪費資源的事情！所以小編在這邊介紹一下 track by，用這個標籤就可以在不重構的情況下異動陣列資料。
+<button ng-click="reloadFriends()">reload</button>
+<ul>
+<li ng-repeat="friend in friends track by friend.id">{{friend.name}}</li>
+</ul>
+$$hashkey（AngularJS < v.1.2 或 其他需求）: 
+在 AngularJS v1.2 之前並沒有 track by 的功能，因此像以上的問題，只能透過 $$hashkey 來解決。ngRepeat 決定產生新的 DOM 是透過觀察該 repeat object 的 $$hashkey 值。$$hashkey 是 AngularJS 產生的 expando property，每當進入 $digest 循環時，AngularJS 會去檢查 $$hashkey 值，一旦發現有第一次出現的物件（沒有 $$hashkey），就會建立一個新 DOM。看玩霧薩薩對不對，沒關係看程式就懂了
+JS : 
+var logs = [ // 200 logs
+{key1: value, key2: value2},
+{key3: value4, key4: value4},
+...
+];
+var getLogs = function(page){
+tmpLogs = logs.slice(page*20, (page+1)*20);
+for(var i=0; i<$scope.showLogs.length; i++){
+for(var key in $scope.showLogs[i]){
+if(key === '$$hashkey'){
+tmpLogs[i]['$$hashkey'] = $scope.showLogs[i]['$$hashkey'];
+}
+}
+}
+return tmpLogs;
+}
+$scope.setPage = function(page){
+$scope.showLogs = getLogs(page);
+};
+-------------------------------------------------------------------------------------------------------------------------------------------------
+附上個稍微比較完整的CRUD範例
+HTML:
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+<body ng-app="App">
+<div ng-controller="FirstCtrl">
+<input type="text" ng-model="emp.name" class="form-control" />
+<input type="text" ng-model="emp.sex" class="form-control" />
+<input type="button" value="新增" ng-show="emp.id==-1" ng-click="addClick()"/>
+<input type="button" value="送出" ng-show="emp.id>-1" ng-click="submitClick()"/>
+<hr />
+<table>
+<tr>
+<td>姓名</td>
+<td>性別</td>
+<td>修改</td>
+<td>刪除</td>
+</tr>
+<tr ng-repeat="people in s_peoples track by people.id">
+<!--<td ng-bind="people.name"></td>
+<td ng-bind="people.sex"></td>-->
+<td ng-repeat="item in people" ng-bind="item" ng-if="!$first"></td><!--第一個變數是id，但我並沒有這定這個欄位-->
+<td>
+<input type="button" value="修改" ng-click="editClick($index)"/><!-直接丟入陣列索引值-->
+</td>
+<td>
+<input type="button" value="刪除" ng-click="delClick($index)"/>
+</td>
+</tr>
+</table>
+</div>
+</body>
+JS:
+angular.module('App', []).controller('FirstCtrl', function ($scope) {
+var s_emp = function(id,name,sex){
+this.id=id>-1?id:-1;
+this.name=name|| '';
+this.sex=sex|| '' ;
+};
+$scope.emp = new s_emp();
+$scope.s_peoples = [
+new s_emp(1,"anson","boy"),
+new s_emp(2,"andy","boy"),
+new s_emp(3,"coco","girl"),
+new s_emp(4,"lucky","dog"),
+new s_emp(5,"micky","mouse")
+];
+$scope.peoples = angular.copy($scope.s_peoples);編輯時為了不同步顯示，定義一個相同的陣列，除了編輯外，其他動作須同步進行
+// angular.copy 同於clone()效果
+
+//----------------add---------------------//
+$scope.addClick = function () {
+var test = angular.copy($scope.s_peoples);//礙於js特性記憶體共用，會影響到原始資料所以複製出來做演算
+$scope.emp.id = test.sort(function(a,b){ return (a.id - b.id); }).pop().id+1;
+$scope.s_peoples[$scope.s_peoples.length]=angular.copy($scope.emp);
+$scope.peoples[$scope.peoples.length] = angular.copy($scope.emp);
+$scope.emp = new s_emp();
+};
+
+//----------------del---------------------//
+$scope.delClick = function (index){
+$scope.s_peoples.splice(index, 1);
+$scope.peoples.splice(index, 1);
+};
+
+//----------------edit---------------------//
+$scope.editClick = function (index) {
+$scope.emp = $scope.peoples[index];
+$scope.edit_index = index;
+};
+
+$scope.submitClick = function (){
+$scope.s_peoples[$scope.edit_index] = angular.copy($scope.emp);
+$scope.emp = new s_emp();
+};
+});
